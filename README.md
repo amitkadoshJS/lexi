@@ -38,7 +38,7 @@ npm run dev
 
 ## Authorization
 
-Admins are documents under `config/admins/{email}`. The document ID must match the user's email.
+Admins are documents under `admins/{email}`. The document ID must match the user's email.
 If the doc exists, the user is authorized. If not, the UI blocks access and shows a Not Authorized screen.
 
 ## Firestore Rules Snippet
@@ -49,7 +49,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function isAdmin() {
       return request.auth != null
-        && exists(/databases/$(database)/documents/config/admins/$(request.auth.token.email));
+        && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
     }
 
     match /{document=**} {
@@ -60,7 +60,7 @@ service cloud.firestore {
 ```
 
 > For production, consider custom claims or stricter per-collection rules, but this app uses the
-> document-based `config/admins/{email}` approach as required.
+> document-based `admins/{email}` approach as required.
 
 ## Notes
 
