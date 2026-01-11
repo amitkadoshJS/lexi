@@ -23,9 +23,9 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: (
-      <AuthGate>
+      
         <AdminLayout />
-      </AuthGate>
+      
     ),
     children: [
       { index: true, element: <CategoriesPage /> },

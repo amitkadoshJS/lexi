@@ -7,8 +7,8 @@ interface JsonEditorProps {
 }
 
 const JsonEditor = ({ label, value, onChange }: JsonEditorProps) => {
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const nextValue = event.target.value;
+  const handleChange = (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const nextValue = (event.target as HTMLInputElement | HTMLTextAreaElement).value;
     try {
       const parsed = JSON.parse(nextValue);
       onChange(parsed);

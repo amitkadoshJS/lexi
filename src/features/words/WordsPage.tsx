@@ -54,7 +54,7 @@ const WordsPage = () => {
 
   const wordsQuery = useInfiniteQuery({
     queryKey: ["words"],
-    queryFn: ({ pageParam }) => wordsRepo.listPage(PAGE_SIZE, pageParam as string | undefined),
+    queryFn: (context: any) => wordsRepo.listPage(PAGE_SIZE, context.pageParam as string | undefined),
     initialPageParam: undefined,
     getNextPageParam: (lastPage) => lastPage.lastId
   });
@@ -103,7 +103,7 @@ const WordsPage = () => {
   });
 
   const rows = useMemo(() => {
-    const items = wordsQuery.data?.pages.flatMap((page) => page.items) ?? [];
+    const items = ((wordsQuery.data as any)?.pages.flatMap((page: any) => page.items) ?? []) as Word[];
     const searchLower = search.toLowerCase();
     return items.filter((word) => {
       const matchesSearch =

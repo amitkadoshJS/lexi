@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import PageHeader from "../../app/components/PageHeader";
 import LoadingState from "../../app/components/LoadingState";
 import EmptyState from "../../app/components/EmptyState";
-import { usersRepo } from "../../lib/repos/usersRepo";
+import { usersRepo, UserRecord } from "../../lib/repos/usersRepo";
 
 const PAGE_SIZE = 25;
 
@@ -14,12 +14,12 @@ const UsersPage = () => {
   const navigate = useNavigate();
   const usersQuery = useInfiniteQuery({
     queryKey: ["users"],
-    queryFn: ({ pageParam }) => usersRepo.listPage(PAGE_SIZE, pageParam as string | undefined),
+    queryFn: (context: any) => usersRepo.listPage(PAGE_SIZE, context.pageParam as string | undefined),
     initialPageParam: undefined,
     getNextPageParam: (lastPage) => lastPage.lastId
   });
 
-  const rows = usersQuery.data?.pages.flatMap((page) => page.items) ?? [];
+  const rows = ((usersQuery.data as any)?.pages.flatMap((page: any) => page.items) ?? []) as UserRecord[];
 
   return (
     <Box>

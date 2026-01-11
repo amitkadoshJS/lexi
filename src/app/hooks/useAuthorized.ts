@@ -15,7 +15,7 @@ export const useAuthorized = () => {
         setLoading(false);
         return;
       }
-      const adminDoc = doc(db, "admins", user.email);
+      const adminDoc = doc(db, "admins", user.email?.trim().toLowerCase());
       const snapshot = await getDoc(adminDoc);
       setAuthorized(snapshot.exists());
       setLoading(false);

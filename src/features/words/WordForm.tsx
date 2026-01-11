@@ -54,8 +54,9 @@ const WordForm = ({ open, initialValues, onClose, onSubmit }: WordFormProps) => 
     }
   });
 
-  const { fields, append, remove } = useFieldArray({ control, name: "category" });
+  const { fields, append, remove } = useFieldArray<any>({ control, name: "category" });
   const [newCategory, setNewCategory] = useState("");
+  const categories = watch("category");
 
   const addCategory = () => {
     if (!newCategory.trim()) {
@@ -92,7 +93,7 @@ const WordForm = ({ open, initialValues, onClose, onSubmit }: WordFormProps) => 
           </Typography>
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>
             {fields.map((field, index) => (
-              <Chip key={field.id} label={field.value} onDelete={() => remove(index)} />
+              <Chip key={field.id} label={categories?.[index] ?? ""} onDelete={() => remove(index)} />
             ))}
           </Box>
           <Box sx={{ display: "flex", gap: 1 }}>
