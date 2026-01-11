@@ -23,6 +23,7 @@ import LoadingState from "../../app/components/LoadingState";
 import { useSnack } from "../../app/hooks/useSnack";
 import {
   createSubcollectionDoc,
+  createSubcollectionDocWithId,
   deleteSubcollectionDoc,
   GenericRecord,
   listSubcollection,
@@ -39,6 +40,7 @@ const GamesCrud = ({ worldId }: GamesCrudProps) => {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<GenericRecord | null>(null);
   const [jsonText, setJsonText] = useState("{}");
+  const [newId, setNewId] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<GenericRecord | null>(null);
 
   const queryKey = ["worlds", worldId, "games"];
@@ -48,8 +50,8 @@ const GamesCrud = ({ worldId }: GamesCrudProps) => {
   });
 
   const createMutation = useMutation({
-    mutationFn: (payload: GenericRecord) =>
-      createSubcollectionDoc(["worlds", worldId, "games"], payload),
+    mutationFn: ({ id, payload }: { id?: string; payload: GenericRecord }) =>
+      id ? createSubcollectionDocWithId(["worlds", worldId, "games"], id, payload) : createSubcollectionDoc(["worlds", worldId, "games"], payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
       snack.success("Game created");
@@ -82,6 +84,7 @@ const GamesCrud = ({ worldId }: GamesCrudProps) => {
   const openDialog = (record?: GenericRecord) => {
     setActive(record ?? null);
     setJsonText(JSON.stringify(record ?? {}, null, 2));
+    setNewId("");
     setOpen(true);
   };
 
@@ -91,7 +94,7 @@ const GamesCrud = ({ worldId }: GamesCrudProps) => {
       if (active?.id) {
         updateMutation.mutate({ id: active.id, payload: parsed });
       } else {
-        createMutation.mutate(parsed);
+        createMutation.mutate({ id: newId?.trim() || undefined, payload: parsed });
       }
     } catch {
       snack.error("Invalid JSON");
@@ -140,6 +143,16 @@ const GamesCrud = ({ worldId }: GamesCrudProps) => {
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle>{active ? "Edit game" : "New game"}</DialogTitle>
         <DialogContent>
+          {!active && (
+            <TextField
+              label="Document ID"
+              value={newId}
+              onChange={(e) => setNewId(e.target.value)}
+              helperText="Provide an ID to use for the new game; leave empty to auto-generate."
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+          )}
           <TextField
             fullWidth
             label="JSON"

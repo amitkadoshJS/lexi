@@ -5,7 +5,8 @@ import {
   doc,
   getDoc,
   getDocs,
-  updateDoc
+  updateDoc,
+  setDoc
 } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 
@@ -21,6 +22,12 @@ export const createSubcollectionDoc = async (path: string[], payload: GenericRec
   const colRef = (collection as any)(db, ...path);
   const docRef = await addDoc(colRef, payload);
   return docRef.id;
+};
+
+export const createSubcollectionDocWithId = async (path: string[], id: string, payload: GenericRecord) => {
+  const docRef = (doc as any)(db, ...path, id);
+  await setDoc(docRef, payload);
+  return id;
 };
 
 export const updateSubcollectionDoc = async (
