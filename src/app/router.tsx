@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
 import AdminLayout from "./layout/AdminLayout";
-import AuthGate from "./components/AuthGate";
 import CategoriesPage from "../features/categories/CategoriesPage";
 import WordsPage from "../features/words/WordsPage";
 import WorldsPage from "../features/worlds/WorldsPage";

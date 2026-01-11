@@ -11,7 +11,8 @@ import {
   startAfter,
   updateDoc,
   FirestoreDataConverter,
-  Timestamp
+  Timestamp,
+  serverTimestamp
 } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 
@@ -38,7 +39,7 @@ const wordsConverter: FirestoreDataConverter<Word> = {
     title_he: data.title_he,
     voice_record_en: data.voice_record_en,
     voice_record_he: data.voice_record_he,
-    created_at: data.created_at
+    created_at: data.created_at ?? serverTimestamp()
   }),
   fromFirestore: (snapshot) => {
     const data = snapshot.data();
@@ -74,7 +75,7 @@ export const wordsRepo = {
     if (!cursorDoc.exists()) {
       return { items: [], lastId: undefined };
     }
-    const pagedQuery = query(wordsCollection, orderBy("title_en"), startAfter(cursorDoc), limit(pageSize));
+    const pagedQuery = query(wordsCollection, orderBy("created_at"), startAfter(cursorDoc), limit(pageSize));
     const snapshot = await getDocs(pagedQuery);
     return {
       items: snapshot.docs.map((docSnap) => docSnap.data()),
@@ -82,12 +83,26 @@ export const wordsRepo = {
     };
   },
   create: async (payload: Omit<Word, "id">) => {
-    const docRef = await addDoc(wordsCollection, payload as Word);
-    return docRef.id;
+    try {
+      console.log("wordsRepo.create payload:", payload);
+      const docRef = await addDoc(wordsCollection, payload as Word);
+      console.log("wordsRepo.create success id:", docRef.id);
+      return docRef.id;
+    } catch (error) {
+      console.error("wordsRepo.create failed", error, payload);
+      throw error;
+    }
   },
   update: async (id: string, payload: Partial<Word>) => {
-    const docRef = doc(db, "words", id);
-    await updateDoc(docRef, payload);
+    try {
+      console.log("wordsRepo.update", id, payload);
+      const docRef = doc(db, "words", id);
+      await updateDoc(docRef, payload);
+      console.log("wordsRepo.update success", id);
+    } catch (error) {
+      console.error("wordsRepo.update failed", error, id, payload);
+      throw error;
+    }
   },
   remove: async (id: string) => {
     await deleteDoc(doc(db, "words", id));

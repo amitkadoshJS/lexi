@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -40,7 +40,7 @@ interface WordFormProps {
 }
 
 const WordForm = ({ open, initialValues, onClose, onSubmit }: WordFormProps) => {
-  const { register, control, handleSubmit, watch, formState } = useForm<WordFormValues>({
+  const { register, control, handleSubmit, watch, formState, reset } = useForm<WordFormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       title_en: initialValues?.title_en ?? "",
@@ -53,6 +53,21 @@ const WordForm = ({ open, initialValues, onClose, onSubmit }: WordFormProps) => 
       test_order_id: initialValues?.test_order_id ?? 0
     }
   });
+
+  useEffect(() => {
+    // Reset form values when initialValues or dialog open state changes
+    reset({
+      title_en: initialValues?.title_en ?? "",
+      title_he: initialValues?.title_he ?? "",
+      category: initialValues?.category ?? [],
+      img: initialValues?.img ?? "",
+      corr_img: initialValues?.corr_img ?? "",
+      voice_record_en: initialValues?.voice_record_en ?? "",
+      voice_record_he: initialValues?.voice_record_he ?? "",
+      test_order_id: initialValues?.test_order_id ?? 0
+    });
+    setNewCategory("");
+  }, [initialValues, open, reset]);
 
   const { fields, append, remove } = useFieldArray<any>({ control, name: "category" });
   const [newCategory, setNewCategory] = useState("");

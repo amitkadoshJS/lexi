@@ -66,7 +66,10 @@ const WordsPage = () => {
       snack.success("Word created");
       setOpenForm(false);
     },
-    onError: () => snack.error("Failed to create word")
+    onError: (error: any) => {
+      console.error("create word failed", error);
+      snack.error(error?.message ?? "Failed to create word");
+    }
   });
 
   const updateMutation = useMutation({
@@ -77,7 +80,10 @@ const WordsPage = () => {
       snack.success("Word updated");
       setOpenForm(false);
     },
-    onError: () => snack.error("Failed to update word")
+    onError: (error: any) => {
+      console.error("update word failed", error);
+      snack.error(error?.message ?? "Failed to update word");
+    }
   });
 
   const deleteMutation = useMutation({
@@ -91,15 +97,23 @@ const WordsPage = () => {
   });
 
   const duplicateMutation = useMutation({
-    mutationFn: (payload: Word) => {
-      const { id, ...rest } = payload;
-      return wordsRepo.create(rest as Word);
+    mutationFn: async (payload: Word) => {
+      try {
+        const { id, ...rest } = payload;
+        return await wordsRepo.create(rest as Word);
+      } catch (error) {
+        console.error("duplicate word failed", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["words"] });
       snack.success("Word duplicated");
     },
-    onError: () => snack.error("Failed to duplicate word")
+    onError: (error: any) => {
+      console.error("duplicate mutation error", error);
+      snack.error(error?.message ?? "Failed to duplicate word");
+    }
   });
 
   const rows = useMemo(() => {
